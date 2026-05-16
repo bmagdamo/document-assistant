@@ -89,7 +89,7 @@ async def ask(request: Request, body: AskRequest):
         logger.error("LLM error for session %s: %s", session_id, exc)
         raise HTTPException(status_code=502, detail="LLM request failed") from exc
 
-    safe_answer, was_blocked = output_guard.check(raw_answer)
+    safe_answer, was_blocked = await output_guard.check(raw_answer)
     if was_blocked:
         logger.warning("Session %s | OUTPUT BLOCKED — confidential data in LLM response", session_id)
         safe_answer = "I'm not able to share that information. Please ask about general engagement details."
