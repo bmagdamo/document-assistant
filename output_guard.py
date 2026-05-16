@@ -28,3 +28,14 @@ OUTPUT_PATTERNS = [
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in OUTPUT_PATTERNS]
+
+class OutputGuard:
+    def check(self, text: str) -> tuple[str, bool]:
+        """
+        Returns (text, was_blocked).
+        Caller replaces response with a safe message if was_blocked is True.
+        """
+        for pattern in _COMPILED:
+            if pattern.search(text):
+                return text, True
+        return text, False
