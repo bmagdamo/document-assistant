@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from session_store import SessionStore
 from input_guard import InputGuard
 from output_guard import OutputGuard
-from prompt_builder import build_prompt
+from prompt_builder import build_prompt, DOCUMENT
 
 load_dotenv()
 
@@ -96,4 +96,9 @@ async def ask(request: AskRequest):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "model": MODEL}
+    doc_ok = bool(DOCUMENT)
+    return {
+        "status": "ok" if doc_ok else "degraded",
+        "model": MODEL,
+        "document_loaded": doc_ok,
+    }
