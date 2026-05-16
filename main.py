@@ -3,7 +3,10 @@ import uuid
 import logging
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from openai import OpenAI
@@ -23,6 +26,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Secure Document Assistant")
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 session_store = SessionStore(ttl_minutes=30, max_turns=20)
 input_guard = InputGuard()
@@ -44,6 +51,7 @@ class AskResponse(BaseModel):
     session_id: str
 
 @app.post("/ask", response_model=AskResponse)
+@limiter.limit("20/minute")
 async def ask(request: AskRequest):
     session_id = request.session_id or str(uuid.uuid4())
     question = request.question.strip()
