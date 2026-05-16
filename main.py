@@ -81,7 +81,7 @@ async def ask(request: AskRequest):
         logger.warning("Session %s | OUTPUT BLOCKED — confidential data in LLM response", session_id)
         safe_answer = "I'm not able to share that information. Please ask about general engagement details."
 
-    session_store.add_turn(session_id, question, safe_answer)
+    await session_store.add_turn(session_id, question, safe_answer)
 
     logger.info("Session %s | answer: %.120s", session_id, safe_answer)
     return AskResponse(answer=safe_answer, session_id=session_id)
