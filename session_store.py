@@ -38,9 +38,10 @@ class SessionStore:
     def check_rate_limit(self, session_id: str, max_per_minute: int = 10) -> bool:
         """Returns True if request should be allowed."""
         now = time.time()
-        entry = self._store.get(session_id)
-        if not entry:
-            return True
+        if session_id not in self._store:
+           self._store[session_id] = {"history": [], "last_active": now, "request_times": []}
+        
+        entry = self._store[session_id]
         
         timestamps = entry.get("request_times", [])
         timestamps = [t for t in timestamps if now - t < 60]
