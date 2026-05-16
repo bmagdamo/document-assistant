@@ -86,3 +86,7 @@ async def ask(request: AskRequest):
 
     logger.info("Session %s | answer: %.120s", session_id, safe_answer)
     return AskResponse(answer=safe_answer, session_id=session_id)
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "model": MODEL}
