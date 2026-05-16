@@ -51,7 +51,7 @@ class AskResponse(BaseModel):
     session_id: str
 
 @app.post("/ask", response_model=AskResponse)
-@limiter.limit("20/minute")
+@limiter.limit("30/minute")
 async def ask(request: AskRequest):
     session_id = request.session_id or str(uuid.uuid4())
     question = request.question.strip()
@@ -70,6 +70,11 @@ async def ask(request: AskRequest):
         )
 
     history = session_store.get(session_id)
+
+    if not session_store.check_rate_limit(session_id):
+        logger.warning("Session %s | RATE LIMITED", session_id)
+        raise HTTPException(status_code=429, detail="Too many requests")
+    
     messages = build_prompt(history, question)
 
     try:
