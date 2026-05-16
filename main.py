@@ -34,3 +34,12 @@ client = OpenAI(
     base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
 )
 MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+
+class AskRequest(BaseModel):
+    question: str
+    session_id: Optional[str] = None
+
+
+class AskResponse(BaseModel):
+    answer: str
+    session_id: str
