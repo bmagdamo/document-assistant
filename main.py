@@ -52,9 +52,9 @@ class AskResponse(BaseModel):
 
 @app.post("/ask", response_model=AskResponse)
 @limiter.limit("30/minute")
-async def ask(request: AskRequest):
-    session_id = request.session_id or str(uuid.uuid4())
-    question = request.question.strip()
+async def ask(request: Request, body: AskRequest):
+    session_id = body.session_id or str(uuid.uuid4())
+    question = body.question.strip()
 
     if not question:
         raise HTTPException(status_code=400, detail="question must not be empty")
