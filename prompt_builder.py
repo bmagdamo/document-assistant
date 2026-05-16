@@ -67,3 +67,13 @@ DOCUMENT
 
 {document}
 """.format(document=DOCUMENT)
+
+def build_prompt(history: list[dict], question: str) -> list[dict]:
+    """
+    Assemble the full message list for the LLM API call.
+    Order: system prompt → history → current question.
+    """
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages.extend(history)
+    messages.append({"role": "user", "content": question})
+    return messages
