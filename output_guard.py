@@ -1,4 +1,5 @@
 import re
+from presidio_analyzer import AnalyzerEngine
 
 OUTPUT_PATTERNS = [
     # EIN
@@ -30,12 +31,16 @@ OUTPUT_PATTERNS = [
 _COMPILED = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in OUTPUT_PATTERNS]
 
 class OutputGuard:
+    def __init__(self):
+        self._analyzer = AnalyzerEngine()
+
     def check(self, text: str) -> tuple[str, bool]:
-        """
-        Returns (text, was_blocked).
-        Caller replaces response with a safe message if was_blocked is True.
-        """
         for pattern in _COMPILED:
             if pattern.search(text):
                 return text, True
+        
+        results = self._analyzer.analyze(text=text, language="en", entities=["US_ITIN", "US_SSN"])
+        if results:
+            return text, True
+
         return text, False
