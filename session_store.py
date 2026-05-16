@@ -13,6 +13,7 @@ class SessionStore:
         stale = [sid for sid, e in self._store.items() if e["last_active"] < cutoff]
         for sid in stale:
             del self._store[sid]
+    
     def get(self, session_id: str) -> list[dict]:
         """Return conversation history for a session."""
         self._expire()
