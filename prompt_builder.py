@@ -1,9 +1,14 @@
 import os
+from functools import lru_cache
 
+@lru_cache(maxsize=1)
 def load_document() -> str:
     path = os.environ.get("DOCUMENT_PATH", "document.txt")
-    with open(path, "r") as f:
-        return f.read()
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        raise RuntimeError(f"Document not found at '{path}'. Check DOCUMENT_PATH env var.")
 
 DOCUMENT = load_document()
 
