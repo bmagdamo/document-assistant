@@ -37,10 +37,10 @@ class OutputGuard:
     def check(self, text: str) -> tuple[str, bool]:
         for pattern in _COMPILED:
             if pattern.search(text):
-                return text, True
+                return "", True
         
         results = self._analyzer.analyze(text=text, language="en", entities=["US_ITIN", "US_SSN"])
         if results:
-            return text, True
+            return "", True
 
         return text, False
