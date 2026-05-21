@@ -69,11 +69,11 @@ async def ask(request: Request, body: AskRequest):
             session_id=session_id,
         )
 
-    history = session_store.get(session_id)
-
-    if not session_store.check_rate_limit(session_id):
+    if not await session_store.check_and_record_request(session_id):
         logger.warning("Session %s | RATE LIMITED", session_id)
         raise HTTPException(status_code=429, detail="Too many requests")
+
+    history = session_store.get(session_id)
     
     messages = build_prompt(history, question)
 
