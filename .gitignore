@@ -11,3 +11,4 @@ wheels/
 
 .env
 document.txt
+*.pdf
