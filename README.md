@@ -1,13 +1,13 @@
 # Document Assistant
 
-An AI-powered document assistant that answers natural-language questions about an audit engagement summary. Confidential fields are protected at multiple layers — input filtering, system prompt constraints, and an LLM-based output judge — so the assistant can serve legitimate queries without leaking sensitive information.
+An AI-powered assistant that answers questions about an audit engagement document. Confidential fields are protected at multiple layers: input filtering, system prompt constraints, and an LLM-based output judge.
 
 ## Requirements
 
-- Docker and Docker Compose, **or** Python 3.12+ with [uv](https://docs.astral.sh/uv/)
+- Docker and Docker Compose, or Python 3.12+ with [uv](https://docs.astral.sh/uv/)
 - An OpenAI API key
 
-## Quick Start (Docker)
+## Quick start (Docker)
 
 1. Create a `.env` file in the project root:
    ```
@@ -16,34 +16,32 @@ An AI-powered document assistant that answers natural-language questions about a
 
 2. Place the source document at `document.txt` in the project root.
 
-3. Start the service:
+3. Run it:
    ```bash
    docker compose up
    ```
 
 The API will be available at `http://localhost:8000`.
 
-## Running Without Docker
+## Running without Docker
 
 ```bash
 uv sync
 OPENAI_API_KEY=sk-... uv run uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-## Environment Variables
+## Environment variables
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `OPENAI_API_KEY` | Yes | — | OpenAI API key |
-| `OPENAI_BASE_URL` | No | `https://api.openai.com/v1` | API base URL (override for proxies) |
-| `LLM_MODEL` | No | `gpt-4o-mini` | Model used for both the assistant and output judge |
+| `OPENAI_API_KEY` | Yes | | OpenAI API key |
+| `OPENAI_BASE_URL` | No | `https://api.openai.com/v1` | Override for proxies |
+| `LLM_MODEL` | No | `gpt-4o-mini` | Model used for the assistant and output judge |
 | `DOCUMENT_PATH` | No | `document.txt` | Path to the source document |
 
 ## API
 
 ### POST /ask
-
-Accepts a question and returns an answer grounded in the loaded document.
 
 ```bash
 curl -X POST http://localhost:8000/ask \
@@ -58,7 +56,7 @@ curl -X POST http://localhost:8000/ask \
 }
 ```
 
-To continue a conversation, pass the `session_id` returned from the previous response:
+To continue a conversation, pass the `session_id` back in the next request:
 
 ```bash
 curl -X POST http://localhost:8000/ask \
@@ -78,6 +76,6 @@ curl http://localhost:8000/health
 {"status": "ok", "model": "gpt-4o-mini", "document_loaded": true}
 ```
 
-## Live Endpoint
+## Live endpoint
 
-`https://PLACEHOLDER` — included in submission email.
+`https://document-assistant.fly.dev`
