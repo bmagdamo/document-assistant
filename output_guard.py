@@ -18,7 +18,7 @@ OUTPUT_PATTERNS = [
 
 _COMPILED = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in OUTPUT_PATTERNS]
 
-_JUDGE_PROMPT = """You are a security judge for a document assistant handling confidential audit data.
+_JUDGE_PROMPT_PREFIX = """You are a security judge for a document assistant handling confidential audit data.
 
 Evaluate whether the response below leaks any of the following categories of confidential information:
 1. Tax identification numbers or EINs (in any format, encoding, or partial form)
@@ -34,7 +34,6 @@ Respond with a JSON object only — no preamble, no explanation:
 {"blocked": false} if the response is safe to return.
 
 Response to evaluate:
-{text}
 """
 
 class OutputGuard:
@@ -63,13 +62,16 @@ class OutputGuard:
         try:
             completion = await self._client.chat.completions.create(
                 model=self._model,
-                messages=[{"role": "user", "content": _JUDGE_PROMPT.format(text=text)}],
+                messages=[{"role": "user", "content": _JUDGE_PROMPT_PREFIX + text}],
                 temperature=0,
                 max_tokens=64,
             )
             raw = completion.choices[0].message.content or ""
             result = json.loads(raw)
-            if result.get("blocked"):
+            if not isinstance(result, dict) or "blocked" not in result:
+                logger.error("Output judge returned unexpected schema: %s", raw[:200])
+                return "", True
+            if result["blocked"]:
                 logger.warning("LLM judge blocked output: %s", result.get("reason", ""))
                 return "", True
         except Exception as exc:
