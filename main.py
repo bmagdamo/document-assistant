@@ -81,7 +81,7 @@ async def ask(request: Request, body: AskRequest):
         completion = client.chat.completions.create(
             model=MODEL,
             messages=messages,
-            temperature=0.1,
+            temperature=0.0,
             max_tokens=512,
         )
         raw_answer = completion.choices[0].message.content or ""
