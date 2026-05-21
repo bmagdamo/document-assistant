@@ -6,6 +6,7 @@ import json
 import logging
 from openai import AsyncOpenAI
 from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer.nlp_engine import NlpEngineProvider
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,11 @@ Response to evaluate:
 
 class OutputGuard:
     def __init__(self):
-        self._analyzer = AnalyzerEngine()
+        nlp_engine = NlpEngineProvider(nlp_configuration={
+            "nlp_engine_name": "spacy",
+            "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}],
+        }).create_engine()
+        self._analyzer = AnalyzerEngine(nlp_engine=nlp_engine)
         self._client = AsyncOpenAI(
             api_key=os.environ.get("OPENAI_API_KEY", ""),
             base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
